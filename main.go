@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
 
+	"github.com/dyhalmeida/golang-crud-mvc/src/routes"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -16,5 +16,10 @@ func init() {
 }
 
 func main()  {
-	fmt.Println(os.Getenv("TEST"))
+	router := gin.Default()
+	routes.InitRoutes(&router.RouterGroup)
+	
+	if err := router.Run(":3333"); err != nil {
+		log.Fatal(err)
+	}
 }
