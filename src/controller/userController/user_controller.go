@@ -3,7 +3,7 @@ package usercontroller
 import (
 	"fmt"
 
-	resterrors "github.com/dyhalmeida/golang-crud-mvc/src/configuration/restErrors"
+	"github.com/dyhalmeida/golang-crud-mvc/src/configuration/validation"
 	"github.com/dyhalmeida/golang-crud-mvc/src/controller/model/request"
 	"github.com/dyhalmeida/golang-crud-mvc/src/utils"
 	"github.com/gin-gonic/gin"
@@ -15,7 +15,7 @@ func CreateUser(c *gin.Context) {
 	err := c.ShouldBindJSON(&userRequest)
 	
 	if utils.HasError(err) {
-		restErr := resterrors.NewBadRequestError(fmt.Sprintf("There are some incorrect field, error=%s", err.Error()))
+		restErr := validation.ValidateError(err)
 		c.JSON(restErr.Code, restErr)
 		return
 	}
