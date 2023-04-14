@@ -1,12 +1,17 @@
 package usercontroller
 
 import (
-	"fmt"
+	"net/http"
 
 	"github.com/dyhalmeida/golang-crud-mvc/src/configuration/validation"
 	"github.com/dyhalmeida/golang-crud-mvc/src/controller/model/request"
+	"github.com/dyhalmeida/golang-crud-mvc/src/core/domain"
 	"github.com/dyhalmeida/golang-crud-mvc/src/utils"
 	"github.com/gin-gonic/gin"
+)
+
+var (
+	UserDomainInterface domain.UserDomainInterface
 )
 
 func CreateUser(context *gin.Context) {
@@ -20,7 +25,19 @@ func CreateUser(context *gin.Context) {
 		return
 	}
 
-	fmt.Println(userRequest)
+	domain := domain.NewUserDomain(
+		userRequest.Email,
+		userRequest.Email,
+		userRequest.Password,
+		userRequest.Age,
+	)
+
+	if err := domain.CreateUser(); err != nil {
+		context.JSON(err.Code, err)
+		return
+	}
+
+	context.String(http.StatusOK, "")
 
 }
 
