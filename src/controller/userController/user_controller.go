@@ -9,14 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateUser(c *gin.Context) {
+func CreateUser(context *gin.Context) {
 	var userRequest request.UserRequest
 
-	err := c.ShouldBindJSON(&userRequest)
+	err := context.ShouldBindJSON(&userRequest)
 	
 	if utils.HasError(err) {
 		restErr := validation.ValidateError(err)
-		c.JSON(restErr.Code, restErr)
+		context.JSON(restErr.Code, restErr)
 		return
 	}
 
@@ -24,13 +24,13 @@ func CreateUser(c *gin.Context) {
 
 }
 
-func ShowUser(c *gin.Context) {
+func ShowUser(context *gin.Context) {
 }
 
-func UpdateUser(c *gin.Context) {
+func UpdateUser(context *gin.Context) {
 
 }
 
-func DeleteUser(c *gin.Context) {
+func DeleteUser(context *gin.Context) {
 
 }
