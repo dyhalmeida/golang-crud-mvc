@@ -3,11 +3,13 @@ package usercontroller
 import (
 	"net/http"
 
+	"github.com/dyhalmeida/golang-crud-mvc/src/configuration/logger"
 	"github.com/dyhalmeida/golang-crud-mvc/src/configuration/validation"
 	"github.com/dyhalmeida/golang-crud-mvc/src/controller/model/request"
 	"github.com/dyhalmeida/golang-crud-mvc/src/core/domain"
 	"github.com/dyhalmeida/golang-crud-mvc/src/utils"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 var (
@@ -15,11 +17,13 @@ var (
 )
 
 func CreateUser(context *gin.Context) {
+	logger.Info("Init CreateUser controller", zap.String("flow", "CreateUser"))
 	var userRequest request.UserRequest
 
 	err := context.ShouldBindJSON(&userRequest)
 	
 	if utils.HasError(err) {
+		logger.Error("Error trying to validate user data", err, zap.String("flow", "CreateUser"))
 		restErr := validation.ValidateError(err)
 		context.JSON(restErr.Code, restErr)
 		return
@@ -38,6 +42,7 @@ func CreateUser(context *gin.Context) {
 	}
 
 	context.String(http.StatusOK, "")
+	logger.Info("User created successfully", zap.String("flow", "CreateUser"))
 
 }
 
