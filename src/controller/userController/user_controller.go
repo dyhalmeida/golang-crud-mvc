@@ -9,26 +9,22 @@ import (
 	"github.com/dyhalmeida/golang-crud-mvc/src/model/core/domain"
 	"github.com/dyhalmeida/golang-crud-mvc/src/model/core/usecase"
 	"github.com/dyhalmeida/golang-crud-mvc/src/utils"
+	"github.com/dyhalmeida/golang-crud-mvc/src/view"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
-var (
-	UserDomainInterface domain.UserDomainInterface
-)
-
-type UserControllerInterface interface {
-	CreateUser(context *gin.Context)
-	ShowUser(context *gin.Context)
-	UpdateUser(context *gin.Context)
-	DeleteUser(context *gin.Context)
-}
-
 type userController struct {
-	usecase usecase.UserUsecaseInterface
+	userUsecase usecase.UserUsecaseInterface
 }
 
-func CreateUser(context *gin.Context) {
+func NewUserController(userUseCase usecase.UserUsecaseInterface) UserControllerInterface {
+	return &userController{
+		userUsecase: userUseCase,
+	}
+}
+
+func (uc *userController) CreateUser(context *gin.Context) {
 	logger.Info("Init CreateUser controller", zap.String("flow", "CreateUser"))
 	var userRequest request.UserRequest
 
@@ -41,32 +37,30 @@ func CreateUser(context *gin.Context) {
 		return
 	}
 
-	domain := domain.NewUserDomain(
+	userDomain := domain.NewUserDomain(
 		userRequest.Email,
 		userRequest.Email,
 		userRequest.Password,
 		userRequest.Age,
 	)
-	
-	usecase := usecase.NewUserUsecase()
 
-	if err := usecase.CreateUser(domain); err != nil {
+	if err := uc.userUsecase.CreateUser(userDomain); err != nil {
 		context.JSON(err.Code, err)
 		return
 	}
 
-	context.String(http.StatusOK, "")
+	context.JSON(http.StatusOK, view.ConvertDomainToResponse(userDomain))
 	logger.Info("User created successfully", zap.String("flow", "CreateUser"))
 
 }
 
-func ShowUser(context *gin.Context) {
+func (uc *userController) ShowUser(context *gin.Context) {
 }
 
-func UpdateUser(context *gin.Context) {
+func (uc *userController) UpdateUser(context *gin.Context) {
 
 }
 
-func DeleteUser(context *gin.Context) {
+func (uc *userController) DeleteUser(context *gin.Context) {
 
 }
