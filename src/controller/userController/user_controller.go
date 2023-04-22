@@ -6,7 +6,8 @@ import (
 	"github.com/dyhalmeida/golang-crud-mvc/src/configuration/logger"
 	"github.com/dyhalmeida/golang-crud-mvc/src/configuration/validation"
 	"github.com/dyhalmeida/golang-crud-mvc/src/controller/model/request"
-	"github.com/dyhalmeida/golang-crud-mvc/src/core/domain"
+	"github.com/dyhalmeida/golang-crud-mvc/src/model/core/domain"
+	"github.com/dyhalmeida/golang-crud-mvc/src/model/core/usecase"
 	"github.com/dyhalmeida/golang-crud-mvc/src/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -15,6 +16,17 @@ import (
 var (
 	UserDomainInterface domain.UserDomainInterface
 )
+
+type UserControllerInterface interface {
+	CreateUser(context *gin.Context)
+	ShowUser(context *gin.Context)
+	UpdateUser(context *gin.Context)
+	DeleteUser(context *gin.Context)
+}
+
+type userController struct {
+	usecase usecase.UserUsecaseInterface
+}
 
 func CreateUser(context *gin.Context) {
 	logger.Info("Init CreateUser controller", zap.String("flow", "CreateUser"))
@@ -35,8 +47,10 @@ func CreateUser(context *gin.Context) {
 		userRequest.Password,
 		userRequest.Age,
 	)
+	
+	usecase := usecase.NewUserUsecase()
 
-	if err := domain.CreateUser(); err != nil {
+	if err := usecase.CreateUser(domain); err != nil {
 		context.JSON(err.Code, err)
 		return
 	}
