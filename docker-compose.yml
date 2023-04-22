@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  mongodb:
+    container_name: golang-crud-mvc-mongodb
+    image: mongo
+    restart: always
+    ports:
+      - "28018:27017"
+    volumes:
+      - "./.docker/mongodb:/data/db"
