@@ -1,6 +1,7 @@
 package usercontroller
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/dyhalmeida/golang-crud-mvc/src/configuration/logger"
@@ -25,32 +26,36 @@ func NewUserController(userUseCase usecase.UserUsecaseInterface) UserControllerI
 }
 
 func (uc *userController) CreateUser(context *gin.Context) {
-	logger.Info("Init CreateUser controller", zap.String("flow", "CreateUser"))
+	logger.Info("Init CreateUser controller in user_controller", zap.String("flow", "CreateUser in user_controller"))
 	var userRequest request.UserRequest
 
-	err := context.ShouldBindJSON(&userRequest)
-	
-	if utils.HasError(err) {
-		logger.Error("Error trying to validate user data", err, zap.String("flow", "CreateUser"))
+	if err := context.ShouldBindJSON(&userRequest); utils.HasError(err) {
+		logger.Error("Error trying to validate user data in user_controller", err, zap.String("flow", "CreateUser in user_controller"))
 		restErr := validation.ValidateError(err)
 		context.JSON(restErr.Code, restErr)
 		return
 	}
 
-	userDomain := domain.NewUserDomain(
+	userCreated, _ := uc.userUsecase.CreateUser(domain.NewUserDomain(
 		userRequest.Email,
 		userRequest.Email,
 		userRequest.Password,
 		userRequest.Age,
+	))
+
+	fmt.Println(userCreated, "DIEGO ALMEIDA")
+	
+	// if utils.HasError(err) {
+	// 	logger.Error("Error trying to call userUsecase.CreateUser in user_controller", err, zap.String("flow", "CreateUser in user_controller"))
+	// 	context.JSON(err.Code, err)
+	// 	return
+	// }
+	logger.Info(
+		"User created successfully in user_controller",
+		zap.String("userId", userCreated.GetId()),
+		zap.String("flow", "CreateUser in user_controller"),
 	)
-
-	if err := uc.userUsecase.CreateUser(userDomain); err != nil {
-		context.JSON(err.Code, err)
-		return
-	}
-
-	context.JSON(http.StatusOK, view.ConvertDomainToResponse(userDomain))
-	logger.Info("User created successfully", zap.String("flow", "CreateUser"))
+	context.JSON(http.StatusOK, view.ConvertDomainToResponse(userCreated))
 
 }
 

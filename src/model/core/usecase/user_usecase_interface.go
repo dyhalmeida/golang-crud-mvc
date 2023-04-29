@@ -6,7 +6,7 @@ import (
 )
 
 type UserUsecaseInterface interface {
-	CreateUser(domain.UserDomainInterface) *resterrors.Error
+	CreateUser(domain.UserDomainInterface) (domain.UserDomainInterface, *resterrors.Error)
 	UpdateUser(string, domain.UserDomainInterface) *resterrors.Error
 	ShowUser(string) (*domain.UserDomainInterface, *resterrors.Error)
 	DeleteUser(string) *resterrors.Error
