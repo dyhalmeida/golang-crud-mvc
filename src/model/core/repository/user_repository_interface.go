@@ -7,4 +7,5 @@ import (
 
 type UserRepositoryInterface interface {
 	CreateUser(userDomain domain.UserDomainInterface) (domain.UserDomainInterface, *resterrors.Error)
+	ShowUser(userID string) (domain.UserDomainInterface, *resterrors.Error)
 }

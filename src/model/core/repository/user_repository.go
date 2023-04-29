@@ -34,7 +34,7 @@ func NewUserRepository(database *mongo.Database) UserRepositoryInterface {
 
 func (userRepository *userRepository) CreateUser(userDomain domain.UserDomainInterface) (domain.UserDomainInterface, *resterrors.Error) {
 	logger.Info(
-		"Init CreateUser in userRepository",
+		"Init userRepository.CreateUser",
 		zap.String("flow", "CreatseUser"),
 	)
 	userCollectionName := os.Getenv(MONGO_USER_COLLECTION)
@@ -43,7 +43,7 @@ func (userRepository *userRepository) CreateUser(userDomain domain.UserDomainInt
 	result, err := collection.InsertOne(context.Background(), userEntity)
 	if utils.HasError(err) {
 		logger.Error(
-			"Error trying to collection.InsertOne in user_repository",
+			"Error trying to collection.InsertOne in userRepository.CreateUser",
 			err,
 			zap.String("flow", "CreateUser"),
 		)
@@ -51,9 +51,49 @@ func (userRepository *userRepository) CreateUser(userDomain domain.UserDomainInt
 	}
 	userEntity.Id = result.InsertedID.(primitive.ObjectID)
 	logger.Info(
-		"User created successfully in user_repository",
+		"userRepository.CreateUser executed with success",
 		zap.String("userId", userEntity.Id.Hex()),
 		zap.String("flow", "CreateUser"),
+	)
+	return converter.EntityToDomain(*userEntity), nil
+}
+
+func (userRepository *userRepository) ShowUser(userID string) (domain.UserDomainInterface, *resterrors.Error) {
+	logger.Info(
+		"Init ShowUser in userRepository",
+		zap.String("flow", "ShowUser"),
+	)
+	userCollectionName := os.Getenv(MONGO_USER_COLLECTION)
+	collection := userRepository.dbConnection.Collection(userCollectionName)
+	userEntity := &entity.UserEntity{}
+
+	objectId, _ := primitive.ObjectIDFromHex(userID)
+	filter := bson.D{{ Key: "_id", Value: objectId }}
+	err := collection.FindOne(context.Background(), filter).Decode(userEntity)
+
+	if utils.HasError(err) && err == mongo.ErrNoDocuments {
+		errorMessage := fmt.Sprintf("User not found with this ID: %s", userID)
+		logger.Error(
+			errorMessage,
+			err,
+			zap.String("flow", "ShowUser"),
+		)
+		return nil, resterrors.NewNotFoundError(errorMessage)
+	}
+	if utils.HasError(err) {
+		errorMessage := "Error trying to find user by ID"
+		logger.Error(
+			errorMessage,
+			err,
+			zap.String("flow", "ShowUser"),
+		)
+		return nil, resterrors.NewInternalServerError(errorMessage)
+	}
+	logger.Info(
+		"ShowUser in userRepository executed with success",
+		zap.String("userId", userEntity.Id.Hex()),
+		zap.String("email", userEntity.Email),
+		zap.String("flow", "ShowUser"),
 	)
 	return converter.EntityToDomain(*userEntity), nil
 }
